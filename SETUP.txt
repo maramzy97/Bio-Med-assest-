@@ -1,0 +1,121 @@
+BIOMEDICAL EQUIPMENT & MAINTENANCE — SETUP
+Hospital: مستشفى تمي الأمديد المركزي
+
+1. LOCAL DEMO
+Requires Node.js 22.12+ and npm.
+  npm ci
+  npm run dev
+Open the URL printed by Vite. The default demo PIN is 1234.
+Blank required Firebase keys enable DEMO MODE. Sample records are synthetic.
+Demo changes persist in this browser's localStorage ONLY, not on other devices.
+The archive also includes a tested dist/ demo build; use npm run preview to serve it.
+Do not open index.html directly as a file:// URL.
+
+2. CONNECT YOUR FIREBASE PROJECT
+- Create a Firebase project and a Cloud Firestore database.
+- Enable Authentication > Sign-in method > Anonymous.
+- Register a Web App and copy .env.example to .env.local.
+- Fill VITE_FIREBASE_* from the Web App configuration.
+- Register Firebase App Check using reCAPTCHA Enterprise for the actual hosting
+  domain; add VITE_RECAPTCHA_ENTERPRISE_SITE_KEY to .env.local.
+- Authorize your domain in Firebase Authentication.
+- The function defaults to us-central1. If changing its region, also change
+  VITE_FUNCTIONS_REGION and functions/index.js so they match.
+- Use a Firebase project with a billing plan supporting Cloud Functions and
+  Secret Manager. Hosting and project configuration are not created automatically.
+
+From the project root:
+  npx firebase-tools login
+  npm --prefix functions ci
+  npx firebase-tools functions:secrets:set STAFF_PIN --project YOUR_PROJECT_ID
+At the secret prompt enter a new FOUR-DIGIT PIN, not 1234.
+  npm run build
+  npx firebase-tools deploy --only firestore,functions,hosting --project YOUR_PROJECT_ID
+The CLI returns your real HTTPS hosting URL. Firebase credentials are not included.
+The production function deliberately refuses the unsafe default PIN 1234.
+For custom-token signing, the function runtime service account must have the
+required service-account token signing IAM permission (Service Account Token Creator)
+on the relevant signing service account. Check IAM if signing fails on first use.
+
+The production registry starts EMPTY. Add departments first using the verified PIN,
+then create equipment. Synthetic demo records are never automatically uploaded.
+All clients using this Firebase project subscribe through Firestore onSnapshot.
+Device additions, edits and status updates sync live. Maintenance logs and the
+current equipment state are committed atomically using a Firestore write batch.
+Firestore deploy also provisions the maintenance chronological index; wait until
+it has finished building before using the timeline in a new project.
+
+3. SECURITY AND DATA GOVERNANCE
+The PIN prompt is UI protection only in demo mode. In live mode a callable Cloud
+Function verifies a Secret Manager PIN; the browser never contains the live PIN.
+The function requires anonymous/user authentication and App Check. It rate-limits
+incorrect attempts by UID and hashed IP (5 failed attempts / 15-minute window).
+Clients behind a shared hospital IP share that IP failure limit. Correct attempts
+do not consume the failure budget. A successful check creates a short-lived write
+claim (5 minutes). Firestore rules enforce the claim expiry, actor ID and schema.
+The UI prompts on every protected click; the server authorization window is five
+minutes, not a single-use operation token. Restart verification if it expires while
+completing a long form. Existing maintenance events cannot be edited or deleted.
+Optional: configure Firestore TTL cleanup on _pinAttempts.expireAt to remove old
+attempt records; expiry cleanup is not required for the rate window to work.
+
+As explicitly requested, equipment and maintenance metadata are PUBLICLY READABLE
+in Guest Mode, including vendor contacts and entered technician names. This is
+not a patient-record system. Never put patient data or sensitive credentials into
+notes, maintenance descriptions, names or vendor fields. If the hospital requires
+private viewing, replace the public-read rules with approved staff authentication.
+A shared 4-digit PIN is limited assurance: for a real hospital deployment complete
+security/privacy review, use approved staff identities/MFA when required, restrict
+write access, define backups, retention, monitoring, billing alerts and operational
+recovery. Do not represent this code as certified medical-device software.
+Device Asset ID duplicate checks occur in the UI; centrally enforce uniqueness
+(e.g. transaction-backed reservation IDs) before high-concurrency bulk imports.
+This archive is not a hosted or hospital-approved deployment.
+
+Persistent equipment caching is OFF by default for shared-device privacy. Set
+VITE_FIREBASE_PERSIST_CACHE=true only on managed trusted devices if approved.
+The PWA caches its application shell, not patient data or callable responses.
+Cached screens may show stale equipment metadata while offline. Live protected
+workflows need connectivity for server PIN verification. Do not rely on stale
+status as authorization to place equipment into clinical service.
+
+4. QR, PRINTING AND PWA
+QR payloads are HTTPS application deep links containing ?asset=ASSET_ID.
+Print labels only AFTER opening the final deployed hospital URL; localhost labels
+cannot be opened on other phones. The sticker uses the hospital NAME and a generic
+biomedical symbol, not an official logo. QR printing uses a white 70 x 90 mm page.
+Choose actual size / 100% scale and disable browser headers/footers if necessary.
+Camera scanning requires HTTPS (localhost is allowed for development), browser
+camera permission and compatible hardware. Manual QR/asset lookup is provided.
+The camera is stopped when a device is found or the Scanner tab is left.
+Install the PWA from a supported browser's install prompt. On iOS use Safari >
+Share > Add to Home Screen. The production service worker is generated by build.
+
+5. VERIFICATION COMMANDS
+  npm test
+  npx playwright install chromium
+  npm run test:e2e
+  npm run test:rules
+  npm run build
+The Firestore rules test requires Java 21+ and downloads the emulator once.
+On Linux Chromium may need system packages: npx playwright install-deps chromium
+Tested: 10 domain tests, 12 desktop/mobile browser checks, 12 Firestore emulator
+access-control checks. Production build passed. Live Firebase cross-device sync,
+real phone camera scanning, actual sticker printers and production callable
+configuration have NOT been tested against your hospital's project or hardware.
+Backend syntax and dependencies install were checked. Re-run dependency audits
+and apply supported updates before deployment; dependencies change over time.
+
+MAIN FILES
+src/App.jsx        Four isolated application tabs, guarded forms and device profile
+src/firebase.js    Environment-backed Firebase/App Check configuration
+src/store.js       Firestore listeners, writes and local demo persistence
+src/domain.js      Data helpers, search logic, QR parsing and synthetic seed data
+src/index.css      Arabic RTL responsive dark UI, mobile nav, print-only badge
+src/main.jsx       React entry, error boundary and PWA registration
+functions/index.js Server-side PIN verification and throttling
+firestore.rules    Public-read / verified-write field-validated access policy
+firestore.indexes.json Maintenance timeline index
+vite.config.js     React, Tailwind and installable PWA configuration
+.env.example       Project configuration placeholders
+package.json       Runtime dependencies, build and test commands

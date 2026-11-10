@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function authorized() {
+      return request.auth != null
+        && request.auth.token.pinVerifiedUntil is number
+        && request.auth.token.pinVerifiedUntil > request.time.toMillis();
+    }
+    function shortText(value, max) { return value is string && value.size() <= max; }
+    function nonempty(value, max) { return shortText(value, max) && value.size() > 0; }
+    function dateOrBlank(value) { return value is string && (value == '' || value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')); }
+    function validStatus(status) { return status in ['active', 'down', 'maintenance']; }
+    function validDevice(d) {
+      return d.keys().hasAll(['name','assetId','serialNumber','departmentId','model','manufacturer','status','warrantyEnd','vendorName','vendorPhone','nextPmDate','notes','createdAt','updatedAt','updatedBy'])
+        && d.keys().hasOnly(['name','assetId','serialNumber','departmentId','model','manufacturer','status','warrantyEnd','vendorName','vendorPhone','nextPmDate','notes','createdAt','updatedAt','updatedBy'])
+        && nonempty(d.name,160) && nonempty(d.assetId,80) && nonempty(d.serialNumber,120)
+        && nonempty(d.departmentId,150) && exists(/databases/$(database)/documents/departments/$(d.departmentId))
+        && shortText(d.model,120) && shortText(d.manufacturer,120)
+        && validStatus(d.status) && dateOrBlank(d.warrantyEnd) && dateOrBlank(d.nextPmDate)
+        && shortText(d.vendorName,160) && shortText(d.vendorPhone,50) && shortText(d.notes,2000)
+        && d.updatedAt == request.time && d.updatedBy == request.auth.uid;
+    }
+    match /departments/{departmentId} {
+      allow read: if true;
+      allow create: if authorized()
+        && request.resource.data.keys().hasOnly(['name','createdAt'])
+        && nonempty(request.resource.data.name,120)
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+    match /devices/{deviceId} {
+      allow read: if true;
+      allow create: if authorized() && validDevice(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if authorized() && validDevice(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+      match /maintenanceLogs/{logId} {
+        allow read: if true;
+        allow create: if authorized()
+          && exists(/databases/$(database)/documents/devices/$(deviceId))
+          && request.resource.data.keys().hasAll(['occurredOn','type','description','spareParts','technician','cost','resultingStatus','createdAt','createdBy'])
+          && request.resource.data.keys().hasOnly(['occurredOn','type','description','spareParts','technician','cost','resultingStatus','createdAt','createdBy'])
+          && request.resource.data.type in ['corrective','preventive','inspection']
+          && dateOrBlank(request.resource.data.occurredOn) && request.resource.data.occurredOn != ''
+          && nonempty(request.resource.data.description,4000)
+          && shortText(request.resource.data.spareParts,2000)
+          && nonempty(request.resource.data.technician,160)
+          && request.resource.data.cost is number && request.resource.data.cost >= 0 && request.resource.data.cost <= 100000000
+          && validStatus(request.resource.data.resultingStatus)
+          && request.resource.data.resultingStatus == getAfter(/databases/$(database)/documents/devices/$(deviceId)).data.status
+          && request.resource.data.createdAt == request.time && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+    // PIN attempt buckets are server-only. All unlisted collections default to denied.
+    match /{document=**} { allow read, write: if false; }
+  }
+}
