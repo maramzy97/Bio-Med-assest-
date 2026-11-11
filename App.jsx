@@ -267,7 +267,7 @@ function PinModal({ onClose, onVerified }) {
         </Field>
         {isDemo && (
           <p className="text-xs text-center text-amber-300">
-            وضع تجريبي: الرمز الافتراضي 1234
+            وضع تجريبي: الرمز الافتراضي 0000
           </p>
         )}
         <ErrorMessage>{error}</ErrorMessage>
