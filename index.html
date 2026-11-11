@@ -54,7 +54,8 @@ label{font-size:.75rem;color:var(--mut);display:block;margin-bottom:2px}
   <button class="btn2" onclick="auth(()=>settings())">⚙️</button>
   <button class="btn2" onclick="theme()">🌓</button>
 </header>
-<main id="main" class="p-3 max-w-6xl mx-auto" style="padding-bottom:90px"></main>
+<main id="main" class="p-3 max-w-6xl mx-auto" style="padding-bottom:10px"></main>
+<footer dir="ltr" class="text-center" style="font-size:11px;color:var(--mut);padding:6px 0 90px">Created by Mahmoud Ramzy</footer>
 </div>
 <nav id="nav" class="fixed bottom-0 inset-x-0 flex z-50"></nav>
 <div id="ov" onclick="if(event.target===this)closeM()"><div id="box"></div></div>
@@ -64,7 +65,7 @@ const LS='bme_assets_v2';
 const ST={ok:'في الخدمة',down:'خارج الخدمة',pm:'صيانة وقائية',scrap:'مستبعد / كهنة'};
 const SC={ok:'#16a34a',down:'#dc2626',pm:'#eab308',scrap:'#6b7280'};
 const LT={PM:'صيانة وقائية (PM)',CM:'صيانة تصحيحية (CM)',CAL:'معايرة'};
-const TABS=[['home','🏠','الرئيسية'],['assets','🩺','الأجهزة'],['depts','🏥','الأقسام'],['scan','📷','مسح QR']];
+const TABS=[['home','🏠','الرئيسية'],['assets','🩺','الأجهزة'],['depts','🗂️','الأقسام'],['scan','📷','مسح QR']];
 const CLOUD=!!(window.firebase&&window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.apiKey&&!/YOUR_/.test(window.FIREBASE_CONFIG.apiKey));
 let unlocked=false,tab='home',curDept=null,D=CLOUD?{depts:[],devs:[]}:load(),sc=null;
 function seed(){const L=(t,d,e,x,p,c,n)=>({type:t,date:d,eng:e,desc:x,parts:p,cost:c,next:n});return{
@@ -152,7 +153,7 @@ function depts(){
   if(curDept!==null){const x=D.depts[curDept],v=D.devs.filter(d=>d.dept===x);
     return `<button class="btn2 mb-3" onclick="curDept=null;view()">→ كل الأقسام</button><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div class="text-lg font-bold">${E(x)} <span class="mono text-sm" style="color:var(--mut)">(${v.length})</span></div><div class="flex gap-2"><button class="btn2" onclick="auth(()=>editDept(${curDept}))">✏️ تعديل القسم</button><button class="btn2" style="color:#dc2626" onclick="auth(()=>delDept(${curDept}))">🗑 حذف القسم</button></div></div><div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">${v.map(card).join('')||'<div style="color:var(--mut)">لا توجد أجهزة في هذا القسم</div>'}</div>`}
   return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">الأقسام</div><button class="btn" onclick="auth(()=>deptForm())">+ إضافة قسم جديد</button></div>
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">${D.depts.map((x,i)=>{const v=D.devs.filter(d=>d.dept===x),dn=v.filter(d=>d.status==='down').length;return `<div class="card p-4 cursor-pointer" onclick="curDept=${i};view()"><div class="text-2xl">🏥</div><div class="font-bold mt-1">${E(x)}</div><div class="text-xs mt-1" style="color:var(--mut)"><span class="mono">${v.length}</span> جهاز${dn?` • <span style="color:#dc2626">${dn} متوقف</span>`:''}</div></div>`}).join('')}</div>`}
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">${D.depts.map((x,i)=>{const v=D.devs.filter(d=>d.dept===x),dn=v.filter(d=>d.status==='down').length;return `<div class="card p-4 cursor-pointer" onclick="curDept=${i};view()"><div class="text-2xl">🗂️</div><div class="font-bold mt-1">${E(x)}</div><div class="text-xs mt-1" style="color:var(--mut)"><span class="mono">${v.length}</span> جهاز${dn?` • <span style="color:#dc2626">${dn} متوقف</span>`:''}</div></div>`}).join('')}</div>`}
 function deptForm(){openM(`<div class="font-bold mb-3">إضافة قسم جديد</div><form onsubmit="return false" class="grid gap-3"><div><label>اسم القسم</label><input id="dn" placeholder="مثال: الطوارئ"></div><div class="flex gap-2"><button class="btn" onclick="addDept()">حفظ</button><button class="btn2" onclick="closeM()">إلغاء</button></div></form>`)}
 function editDept(i){openM(`<div class="font-bold mb-3">تعديل اسم القسم</div><form onsubmit="return false" class="grid gap-3"><div><label>اسم القسم</label><input id="dn" value="${E(D.depts[i])}"></div><div class="flex gap-2"><button class="btn" onclick="saveDeptEdit(${i})">حفظ</button><button class="btn2" onclick="closeM()">إلغاء</button></div></form>`)}
 function saveDeptEdit(i){const n=$('#dn').value.trim(),o=D.depts[i];if(!n)return alert('اكتب اسم القسم');if(D.depts.some((x,j)=>x===n&&j!==i))return alert('القسم موجود بالفعل');D.devs.forEach(d=>{if(d.dept===o)d.dept=n});D.depts[i]=n;save();closeM();view()}
