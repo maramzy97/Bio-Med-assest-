@@ -18,7 +18,6 @@ export const isDemo = false;
 
 // دالة التحقق من رمز PIN
 export async function verifyStaffPin(pin) {
-  // الرمز الافتراضي 1234 أو الرمز الخاص بك
   if (pin === "1234" || pin === "0000") {
     return true;
   }
