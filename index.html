@@ -55,7 +55,7 @@ label{font-size:.75rem;color:var(--mut);display:block;margin-bottom:2px}
   <button class="btn2" onclick="theme()">🌓</button>
 </header>
 <main id="main" class="p-3 max-w-6xl mx-auto" style="padding-bottom:10px"></main>
-<footer dir="ltr" class="text-center" style="font-size:11px;color:var(--mut);padding:6px 0 90px">Created by Mahmoud Ramzy</footer>
+<footer dir="ltr" class="text-center" style="font-size:11px;color:var(--mut);padding:6px 0 90px">Created by Mahmoud Ramzy · v5</footer>
 </div>
 <nav id="nav" class="fixed bottom-0 inset-x-0 flex z-50"></nav>
 <div id="ov" onclick="if(event.target===this)closeM()"><div id="box"></div></div>
@@ -82,6 +82,7 @@ function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.devs)re
 function localSave(){try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}}
 let prev={},prevD='';
 const fail=e=>alert('فشل الحفظ في السحابة: '+(e&&e.code==='permission-denied'?'غير مصرّح — سجّل الدخول بحساب مسموح له':(e&&e.message)||''));
+let pend=0;window.addEventListener('beforeunload',e=>{if(pend>0){e.preventDefault();e.returnValue=''}});
 function save(){if(!CLOUD)return localSave();
  const db=firebase.firestore(),cur={};D.devs.forEach(d=>cur[d.id]=JSON.stringify(d));
  const dj=JSON.stringify(D.depts);
@@ -89,11 +90,11 @@ function save(){if(!CLOUD)return localSave();
  const ops=[];
  Object.keys(cur).forEach(id=>{if(prev[id]!==cur[id]){prev[id]=cur[id];ops.push({id,del:false,data:JSON.parse(cur[id])})}});
  Object.keys(prev).forEach(id=>{if(!(id in cur)){delete prev[id];ops.push({id,del:true})}});
- (async()=>{let done=0;
+ pend++;(async()=>{let done=0;try{
   for(let i=0;i<ops.length;i+=300){const ch=ops.slice(i,i+300),bt=db.batch();
    ch.forEach(o=>{const r=db.collection('bme_devices').doc(o.id);o.del?bt.delete(r):bt.set(r,o.data)});
    try{await bt.commit();done+=ch.length}catch(e){ch.forEach(o=>{if(!o.del)delete prev[o.id]});fail(e);return}}
-  if(ops.length>20)alert('✔ تم حفظ '+done+' جهاز في السحابة')})()}
+  if(ops.length>20)alert('✔ تم حفظ '+done+' جهاز في السحابة')}finally{pend--}})()}
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
 const bdg=s=>`<span class="bdg ${s}">${ST[s]}</span>`;
