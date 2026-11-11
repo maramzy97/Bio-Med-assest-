@@ -84,9 +84,16 @@ let prev={},prevD='';
 const fail=e=>alert('فشل الحفظ في السحابة: '+(e&&e.code==='permission-denied'?'غير مصرّح — سجّل الدخول بحساب مسموح له':(e&&e.message)||''));
 function save(){if(!CLOUD)return localSave();
  const db=firebase.firestore(),cur={};D.devs.forEach(d=>cur[d.id]=JSON.stringify(d));
- Object.keys(cur).forEach(id=>{if(prev[id]!==cur[id]){prev[id]=cur[id];db.collection('bme_devices').doc(id).set(JSON.parse(cur[id])).catch(fail)}});
- Object.keys(prev).forEach(id=>{if(!(id in cur)){delete prev[id];db.collection('bme_devices').doc(id).delete().catch(fail)}});
- const dj=JSON.stringify(D.depts);if(dj!==prevD){prevD=dj;db.collection('bme_meta').doc('depts').set({list:D.depts}).catch(fail)}}
+ const dj=JSON.stringify(D.depts);
+ if(dj!==prevD){prevD=dj;db.collection('bme_meta').doc('depts').set({list:D.depts}).catch(e=>{prevD='';fail(e)})}
+ const ops=[];
+ Object.keys(cur).forEach(id=>{if(prev[id]!==cur[id]){prev[id]=cur[id];ops.push({id,del:false,data:JSON.parse(cur[id])})}});
+ Object.keys(prev).forEach(id=>{if(!(id in cur)){delete prev[id];ops.push({id,del:true})}});
+ (async()=>{let done=0;
+  for(let i=0;i<ops.length;i+=300){const ch=ops.slice(i,i+300),bt=db.batch();
+   ch.forEach(o=>{const r=db.collection('bme_devices').doc(o.id);o.del?bt.delete(r):bt.set(r,o.data)});
+   try{await bt.commit();done+=ch.length}catch(e){ch.forEach(o=>{if(!o.del)delete prev[o.id]});fail(e);return}}
+  if(ops.length>20)alert('✔ تم حفظ '+done+' جهاز في السحابة')})()}
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
 const bdg=s=>`<span class="bdg ${s}">${ST[s]}</span>`;
@@ -223,7 +230,7 @@ function cloudAuth(cb){stopScan();openM(`<div class='text-center p-2'><div class
 function cloudInit(){firebase.initializeApp(window.FIREBASE_CONFIG);const db=firebase.firestore();db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
  firebase.auth().onAuthStateChanged(u=>{unlocked=!!u;ui()});
  let dv=null,dd=null,ready=false;
- const refresh=()=>{if(dv===null||dd===null)return;D.devs=dv;D.depts=dd;
+ const refresh=()=>{if(dv===null||dd===null)return;D.devs=dv;D.depts=[...dd,...[...new Set(dv.map(x=>x.dept))].filter(x=>x&&!dd.includes(x))];
   if(!ready){ready=true;view();route();return}
   if(!$('#ov').classList.contains('on')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))view()};
  const err=e=>{$('#main').innerHTML="<div class='card p-4 text-center'>تعذّر الاتصال بقاعدة البيانات: "+E(e.message)+"</div>"};
