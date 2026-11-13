@@ -15,21 +15,21 @@
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#f4f6fb;--card:#fff;--tx:#0b1730;--mut:#64708a;--bd:#dde3ef;--gold:#b8892b;--in:#f4f6fb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b1730;--card:#13244a;--tx:#eef1f8;--mut:#9aa7c4;--bd:#243764;--gold:#d4a843;--in:#0e1c3a}}
-:root[data-theme=dark]{--bg:#0b1730;--card:#13244a;--tx:#eef1f8;--mut:#9aa7c4;--bd:#243764;--gold:#d4a843;--in:#0e1c3a}
+:root{--bg:#f4f6fb;--card:#fff;--tx:#0b1730;--mut:#64708a;--bd:#dde3ef;--gold:#b8892b;--in:#f4f6fb;--pri:#0f766e;--pt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b1730;--card:#13244a;--tx:#eef1f8;--mut:#9aa7c4;--bd:#243764;--gold:#d4a843;--in:#0e1c3a;--pri:#2dd4bf;--pt:#042f2e}}
+:root[data-theme=dark]{--bg:#0b1730;--card:#13244a;--tx:#eef1f8;--mut:#9aa7c4;--bd:#243764;--gold:#d4a843;--in:#0e1c3a;--pri:#2dd4bf;--pt:#042f2e}
 body{background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",Arial,sans-serif;margin:0}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:14px}
 .mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace;direction:ltr;unicode-bidi:embed}
 input,select,textarea{background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:.55rem .7rem;width:100%}
 label{font-size:.75rem;color:var(--mut);display:block;margin-bottom:2px}
-.btn{background:var(--gold);color:#0b1730;border-radius:10px;padding:.5rem .9rem;font-weight:700;font-size:.85rem}
+.btn{background:var(--pri);color:var(--pt);border-radius:10px;padding:.5rem .9rem;font-weight:700;font-size:.85rem}
 .btn2{background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:.5rem .9rem;font-size:.85rem}
 .bdg{padding:2px 10px;border-radius:99px;font-size:.72rem;font-weight:700;color:#fff;white-space:nowrap}
 .ok{background:#16a34a}.down{background:#dc2626}.pm{background:#eab308;color:#222}.scrap{background:#6b7280}
 #nav{background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
 #nav button{flex:1;padding:.6rem .2rem;font-size:.72rem;color:var(--mut)}
-#nav button.on{color:var(--gold);font-weight:700}
+#nav button.on{color:var(--pri);font-weight:700}
 #nav button span{display:block;font-size:1.25rem}
 @media(min-width:768px){#nav{top:0;bottom:0;right:0;left:auto;width:13rem;flex-direction:column;border-top:0;border-left:1px solid var(--bd);justify-content:flex-start;padding-top:4rem}#nav button{flex:0;text-align:right;padding:.8rem 1rem;font-size:.9rem}#nav button span{display:inline;margin-left:.5rem}#app{margin-right:13rem}}
 #ov{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;z-index:60}
@@ -38,10 +38,15 @@ label{font-size:.75rem;color:var(--mut);display:block;margin-bottom:2px}
 @media(min-width:768px){#ov{align-items:center}#box{border-radius:18px}}
 .tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--bd);margin:12px 0}
 .tabs button{padding:.5rem .8rem;font-size:.82rem;color:var(--mut);white-space:nowrap;border-bottom:2px solid transparent}
-.tabs button.on{color:var(--gold);border-color:var(--gold);font-weight:700}
+.tabs button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
 .tl{border-right:2px solid var(--bd);padding-right:14px;margin-right:6px}
 .tl>div{position:relative;margin-bottom:12px}.tl>div:before{content:"";position:absolute;right:-21px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--gold)}
 .shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fab{position:fixed;z-index:55;right:1rem;bottom:calc(4.6rem + env(safe-area-inset-bottom,0px));width:3.4rem;height:3.4rem;border-radius:50%;background:var(--pri);color:var(--pt);font-size:1.9rem;line-height:1;box-shadow:0 6px 18px #0006;display:none;align-items:center;justify-content:center}
+.fab.on{display:flex}
+@media(min-width:768px){.fab{bottom:1.5rem;right:14.5rem}}
+.cc{padding:.5rem .7rem;cursor:pointer}
+.qb{font-size:.7rem;padding:2px 8px;border-radius:8px;border:1px solid var(--pri);color:var(--pri);font-weight:700;white-space:nowrap}
 #pa{display:none}
 @media print{body>*:not(#pa){display:none!important}#pa{display:block!important;text-align:center;color:#000;background:#fff}}
 </style>
@@ -50,14 +55,16 @@ label{font-size:.75rem;color:var(--mut);display:block;margin-bottom:2px}
 <div id="app">
 <header class="sticky top-0 z-40 flex items-center gap-2 p-3" style="background:var(--card);border-bottom:1px solid var(--bd)">
   <div class="flex-1 leading-tight"><div class="font-bold" style="color:var(--gold)">🩺 إدارة الأجهزة الطبية</div><div class="text-xs" style="color:var(--mut)">مستشفى تمي الأمديد المركزي</div></div>
+  <button class="btn2" id="tk" onclick="auth(()=>ticketsDlg())" style="display:none"></button>
   <button class="btn2" id="lock" onclick="toggleLock()">🔒 زائر</button>
   <button class="btn2" onclick="auth(()=>settings())">⚙️</button>
   <button class="btn2" onclick="theme()">🌓</button>
 </header>
 <main id="main" class="p-3 max-w-6xl mx-auto" style="padding-bottom:10px"></main>
-<footer dir="ltr" class="text-center" style="font-size:11px;color:var(--mut);padding:6px 0 90px">Created by Mahmoud Ramzy · v5</footer>
+<footer dir="ltr" class="text-center" style="font-size:11px;color:var(--mut);padding:6px 0 90px">Created by Mahmoud Ramzy · v6</footer>
 </div>
 <nav id="nav" class="fixed bottom-0 inset-x-0 flex z-50"></nav>
+<button id="fab" class="fab" aria-label="إضافة"></button>
 <div id="ov" onclick="if(event.target===this)closeM()"><div id="box"></div></div>
 <div id="pa"></div>
 <script>
@@ -67,7 +74,12 @@ const SC={ok:'#16a34a',down:'#dc2626',pm:'#eab308',scrap:'#6b7280'};
 const LT={PM:'صيانة وقائية (PM)',CM:'صيانة تصحيحية (CM)',CAL:'معايرة'};
 const TABS=[['home','🏠','الرئيسية'],['assets','🩺','الأجهزة'],['depts','🗂️','الأقسام'],['scan','📷','مسح QR']];
 const CLOUD=!!(window.firebase&&window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.apiKey&&!/YOUR_/.test(window.FIREBASE_CONFIG.apiKey));
-let unlocked=false,tab='home',curDept=null,D=CLOUD?{depts:[],devs:[]}:load(),sc=null;
+const DEF=[
+{name:'ماكينات الغسيل الكلوي',freq:'1',kw:'غسيل كلوي,dialysis,surdial',tasks:'فحص معايرة التوصيلية (Conductivity)\nمراجعة قراءات حساس T3\nفحص دائرة الـ RO'},
+{name:'أجهزة التنفس الصناعي',freq:'6',kw:'vent,فينت,تنفس,-تخدير',tasks:'تغيير الفلاتر البكتيرية\nمعايرة حساس الأكسجين\nمعايرة حساس التدفق\nسنويًا: تغيير kit الـ PM حسب ساعات التشغيل (10,000 ساعة)'},
+{name:'حضانات الأطفال',freq:'3',kw:'incubator,حضان,-معمل',tasks:'معايرة الحرارة\nتغيير فلاتر الهواء الدقيقة\nفحص إنذارات انقطاع الطاقة'}];
+let unlocked=false,tab='home',curDept=null,D=CLOUD?{depts:[],devs:[],tpls:[]}:load(),sc=null,booted=false,showAllD=false,pmAll=false,T=[],lastU=null;
+if(!D.tpls)D.tpls=JSON.parse(JSON.stringify(DEF));
 function seed(){const L=(t,d,e,x,p,c,n)=>({type:t,date:d,eng:e,desc:x,parts:p,cost:c,next:n});return{
 depts:['غسيل كلوي','العناية المركزة (ICU)','حضانات (NICU)','العمليات','الصيانة'],
 devs:[
@@ -80,13 +92,14 @@ function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.devs)re
  try{const o=JSON.parse(localStorage.getItem('bme_assets_v1'));if(o){const s=seed();o.forEach(x=>{x.loc=x.loc||'';if(!s.depts.includes(x.dept))s.depts.push(x.dept)});s.devs=o;return s}}catch(e){}
  return seed()}
 function localSave(){try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}}
-let prev={},prevD='';
+let prev={},prevD='',prevT='';
 const fail=e=>alert('فشل الحفظ في السحابة: '+(e&&e.code==='permission-denied'?'غير مصرّح — سجّل الدخول بحساب مسموح له':(e&&e.message)||''));
 let pend=0;window.addEventListener('beforeunload',e=>{if(pend>0){e.preventDefault();e.returnValue=''}});
 function save(){if(!CLOUD)return localSave();
  const db=firebase.firestore(),cur={};D.devs.forEach(d=>cur[d.id]=JSON.stringify(d));
  const dj=JSON.stringify(D.depts);
  if(dj!==prevD){prevD=dj;db.collection('bme_meta').doc('depts').set({list:D.depts}).catch(e=>{prevD='';fail(e)})}
+ const tj=JSON.stringify(D.tpls||[]);if(tj!==prevT){prevT=tj;db.collection('bme_meta').doc('tpls').set({list:JSON.parse(tj)}).catch(e=>{prevT='';fail(e)})}
  const ops=[];
  Object.keys(cur).forEach(id=>{if(prev[id]!==cur[id]){prev[id]=cur[id];ops.push({id,del:false,data:JSON.parse(cur[id])})}});
  Object.keys(prev).forEach(id=>{if(!(id in cur)){delete prev[id];ops.push({id,del:true})}});
@@ -99,12 +112,26 @@ const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 const $=s=>document.querySelector(s);
 const bdg=s=>`<span class="bdg ${s}">${ST[s]}</span>`;
 const today=()=>new Date().toISOString().slice(0,10);
-const nextPM=d=>d.logs.map(l=>l.next).filter(Boolean).sort().pop()||'';
+const nextPM=d=>d.nextPmDate||d.logs.map(l=>l.next).filter(Boolean).sort().pop()||'';
+const addM=(s,n)=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return '';const[y,m,d]=s.split('-').map(Number),t=new Date(Date.UTC(y,m-1+n,1)),l=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();t.setUTCDate(Math.min(d,l));return t.toISOString().slice(0,10)};
+const dif=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/864e5);
+const lastPm=d=>d.logs.filter(l=>l.type==='PM'&&l.date).map(l=>l.date).sort().pop()||'';
+const pmState=d=>{if(d.status==='scrap')return null;const n=nextPM(d);if(!n)return null;return{n,x:dif(n,today())}};
+const taskList=t=>String(t.tasks||'').split('\n').map(x=>x.trim()).filter(Boolean);
+function tplFor(d){const h=[d.name,d.model].join(' ').toLowerCase();return (D.tpls||[]).find(t=>{const ks=String(t.kw||'').toLowerCase().split(/[,،]/).map(x=>x.trim()).filter(Boolean),ng=ks.filter(k=>k[0]==='-').map(k=>k.slice(1)),ps=ks.filter(k=>k[0]!=='-');return ps.some(k=>h.includes(k))&&!ng.some(k=>h.includes(k))})}
+const freqTxt=m=>({1:'شهري',2:'كل شهرين',3:'ربع سنوي',6:'نصف سنوي',12:'سنوي'}[+m]||'كل '+m+' شهر');
+const keep=f=>{const y=scrollY;f();scrollTo(0,y)};
+const tix=()=>CLOUD?T:(D.tickets||[]).filter(t=>t.status!=='closed');
+const chkTxt=c=>{const ok=c.filter(x=>x.ok).length,bad=c.filter(x=>!x.ok).map(x=>x.t);return '✔ '+ok+'/'+c.length+(bad.length?' — لم يُنفَّذ: '+bad.join('، '):'')};
+const chkDiv=l=>l.chk&&l.chk.length?`<div class="text-xs mt-1" style="color:var(--mut)">🧾 ${E(chkTxt(l.chk))}</div>`:'';
+function setBadge(){try{const a=D.devs.filter(d=>{const s=pmState(d);return s&&s.x<=7}).length+(unlocked?tix().length:0);if(navigator.setAppBadge)(a?navigator.setAppBadge(a):navigator.clearAppBadge()).catch(()=>{})}catch(e){}}
+function fab(){const f=$('#fab');let a=null,l='جهاز جديد';if(unlocked){if(tab==='assets')a=()=>auth(()=>devForm());else if(tab==='depts'){if(curDept===null){a=()=>auth(()=>deptForm());l='قسم جديد'}else a=()=>auth(()=>devForm(null,D.depts[curDept]))}}
+ f.classList.toggle('on',!!a);f.textContent='+';f.onclick=a;f.setAttribute('aria-label',l);f.title=l}
 function openM(h){$('#box').innerHTML=h;$('#ov').classList.add('on')}
 function closeM(){stopScan();$('#ov').classList.remove('on');if(tab==='scan')startScan();hash()}
 function hash(){try{history.replaceState(null,'','#'+tab)}catch(e){}}
 function theme(){const r=document.documentElement,d=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0b1730';r.dataset.theme=d?'light':'dark'}
-function ui(){$('#lock').textContent=unlocked?'🔓 مسؤول':'🔒 زائر'}
+function ui(){$('#lock').textContent=unlocked?'🔓 مسؤول':'🔒 زائر';const n=tix().length,b=$('#tk');b.style.display=unlocked&&n?'':'none';b.textContent='🎫 '+n;fab();if(booted&&lastU!==unlocked&&tab!=='scan')view();lastU=unlocked}
 function toggleLock(){if(unlocked){if(CLOUD)firebase.auth().signOut();unlocked=false;ui()}else auth(()=>closeM())}
 function auth(cb){
   if(unlocked)return cb();
@@ -122,36 +149,42 @@ function view(){
   $('#nav').innerHTML=TABS.map(([k,i,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')"><span>${i}</span>${l}</button>`).join('');
   $('#main').innerHTML={home,assets,depts,scan}[tab]();
   if(tab==='assets')draw();if(tab==='scan')startScan();
+  fab();setBadge();booted=true;
   scrollTo(0,0)
 }
-function card(d){return `<div class="card p-3 cursor-pointer" onclick="show('${E(d.id)}')"><div class="flex justify-between gap-2 items-start"><div class="font-bold">${E(d.name)}</div>${bdg(d.status)}</div>
-<div class="text-sm mt-1" style="color:var(--mut)">${E(d.dept)} • ${E(d.mfr)} ${E(d.model)}</div><div class="mono text-xs mt-2" style="color:var(--gold)">${E(d.id)} · SN ${E(d.sn)}</div></div>`}
+function card(d){const p=pmState(d),pt=p&&p.x<0?`<span class="shrink-0" style="color:#f97316;font-size:11px">📅 متأخرة ${-p.x} يوم</span>`:p&&p.x<=7?`<span class="shrink-0" style="color:#eab308;font-size:11px">📅 بعد ${p.x} يوم</span>`:'';
+return `<div class="card cc" onclick="show('${E(d.id)}')"><div class="flex justify-between gap-2 items-center"><div class="font-bold text-sm truncate min-w-0">${E(d.name)}</div><div class="flex gap-1 items-center shrink-0">${unlocked?`<button class="qb" onclick="event.stopPropagation();auth(()=>logForm('${E(d.id)}'))">🛠 صيانة</button>`:''}${bdg(d.status)}</div></div>
+<div class="text-xs truncate" style="color:var(--mut)">${E(d.dept)} • ${E(d.mfr)} ${E(d.model)}</div><div class="flex justify-between gap-2 items-center"><div class="mono truncate min-w-0" style="color:var(--gold);font-size:11px">${E(d.id)} · SN ${E(d.sn)}</div>${pt}</div></div>`}
 /* ---------- Dashboard ---------- */
 function home(){
-  const v=D.devs,n=v.length,c=k=>v.filter(d=>d.status===k).length,t=today();
-  const active=v.filter(d=>d.status!=='scrap'),overdue=active.filter(d=>nextPM(d)&&nextPM(d)<t),soon=active.filter(d=>nextPM(d)>=t&&nextPM(d)<=new Date(Date.now()+30*864e5).toISOString().slice(0,10));
+  const v=D.devs,n=v.length,c=k=>v.filter(d=>d.status===k).length,active=v.filter(d=>d.status!=='scrap');
+  const pm=active.map(d=>({d,s:pmState(d)})).filter(o=>o.s&&o.s.x<=7).sort((a,b)=>a.s.x-b.s.x),od=pm.filter(o=>o.s.x<0).length,nos=active.filter(d=>!nextPM(d)).length;
   const kpi=(a,b,col)=>`<div class="card p-3"><div class="text-xs" style="color:var(--mut)">${a}</div><div class="text-2xl font-bold mono" style="color:${col}">${b}</div></div>`;
   const rdy=active.length?Math.round(v.filter(d=>d.status==='ok').length/active.length*100):0;
   let off=0;const R=40,C=2*Math.PI*R;
   const donut=n?Object.keys(ST).map(k=>{const l=c(k)/n*C,s=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="${SC[k]}" stroke-width="18" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;off+=l;return s}).join(''):'';
-  const mx=Math.max(1,...D.depts.map(x=>v.filter(d=>d.dept===x).length));
+  const dc=D.depts.map(x=>[x,v.filter(d=>d.dept===x).length]).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...dc.map(a=>a[1])),dshow=showAllD?dc:dc.slice(0,5);
   const logs=v.flatMap(d=>d.logs.map(l=>({...l,d}))).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
-  const al=[...v.filter(d=>d.status==='down').map(d=>[d,'🔴','خارج الخدمة']),...overdue.map(d=>[d,'🟠','صيانة وقائية متأخرة منذ '+nextPM(d)]),...soon.map(d=>[d,'🟡','صيانة قادمة '+nextPM(d)])];
+  const down=v.filter(d=>d.status==='down'),tks=tix().slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const row=(d,i,x)=>`<div class="text-sm py-2 cursor-pointer" style="border-top:1px solid var(--bd)" onclick="show('${E(d.id)}')">${i} <b>${E(d.name)}</b> <span class="mono text-xs">${E(d.id)}</span><div class="text-xs" style="color:var(--mut)">${E(x)}</div></div>`;
+  const pmRows=(pmAll?pm:pm.slice(0,6)).map(o=>row(o.d,o.s.x<0?'🟠':'🟡',o.d.dept+' — '+(o.s.x<0?'متأخرة '+(-o.s.x)+' يوم (الموعد '+o.s.n+')':o.s.x===0?'اليوم ('+o.s.n+')':'بعد '+o.s.x+' يوم ('+o.s.n+')'))).join('');
   return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">لوحة المؤشرات</div><button class="btn2" onclick="report()">📄 تقرير شهري</button></div>
+  ${unlocked&&tks.length?`<div class="card p-3 mb-3" style="border-color:#dc2626"><div class="flex justify-between items-center"><div class="font-bold text-sm">🎫 بلاغات أعطال مفتوحة (${tks.length})</div><button class="btn2" onclick="ticketsDlg()">عرض الكل</button></div>${tks.slice(0,3).map(t=>row({id:t.devId,name:t.devName},'🔴',(t.by?t.by+' — ':'')+t.desc)).join('')}</div>`:''}
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">${kpi('إجمالي الأجهزة',n,'var(--gold)')}${kpi('نسبة الجاهزية',rdy+'%','#16a34a')}${kpi('خارج الخدمة',c('down'),'#dc2626')}${kpi('صيانة وقائية جارية',c('pm'),'#eab308')}</div>
+  <div class="card p-3 mb-3"><div class="font-bold mb-1 text-sm">🔔 الصيانة الوقائية — متأخرة أو خلال 7 أيام (${pm.length})${od?` <span style="color:#f97316">· ${od} متأخرة</span>`:''}</div>${pmRows||'<div class="text-sm py-1" style="color:var(--mut)">لا توجد صيانة وقائية مستحقة ✔</div>'}${pm.length>6?`<button class="btn2 w-full mt-2" onclick="keep(()=>{pmAll=!pmAll;view()})">${pmAll?'إخفاء':'عرض الكل ('+pm.length+')'}</button>`:''}${unlocked&&nos?`<div class="text-xs mt-2" style="color:var(--mut)">⚙️ ${nos} جهاز بدون موعد صيانة وقائية — حدّد الدورية من ⚙️ ← قوالب الصيانة الوقائية.</div>`:''}</div>
   <div class="grid md:grid-cols-2 gap-3 mb-3">
    <div class="card p-3"><div class="font-bold mb-2 text-sm">توزيع حالات الأجهزة</div><div class="flex items-center gap-4"><svg viewBox="0 0 120 120" width="130" height="130">${donut}<text x="60" y="66" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor">${n}</text></svg>
    <div class="text-xs grid gap-1">${Object.keys(ST).map(k=>`<div><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${SC[k]};margin-left:6px"></span>${ST[k]}: <b class="mono">${c(k)}</b></div>`).join('')}</div></div></div>
-   <div class="card p-3"><div class="font-bold mb-2 text-sm">الأجهزة حسب القسم</div>${D.depts.map(x=>{const k=v.filter(d=>d.dept===x).length;return `<div class="mb-2 text-xs"><div class="flex justify-between"><span>${E(x)}</span><b class="mono">${k}</b></div><div style="background:var(--in);border-radius:6px;height:8px"><div style="width:${k/mx*100}%;height:8px;border-radius:6px;background:var(--gold)"></div></div></div>`}).join('')}</div></div>
+   <div class="card p-3"><div class="font-bold mb-2 text-sm">الأجهزة حسب القسم ${dc.length>5&&!showAllD?'<span class="text-xs" style="color:var(--mut)">(أكبر 5)</span>':''}</div>${dshow.map(([x,k])=>`<div class="mb-2 text-xs"><div class="flex justify-between"><span>${E(x)}</span><b class="mono">${k}</b></div><div style="background:var(--in);border-radius:6px;height:8px"><div style="width:${k/mx*100}%;height:8px;border-radius:6px;background:var(--pri)"></div></div></div>`).join('')}${dc.length>5?`<button class="btn2 w-full mt-1" onclick="keep(()=>{showAllD=!showAllD;view()})">${showAllD?'إخفاء':'عرض كل الأقسام ('+dc.length+')'}</button>`:''}</div></div>
   <div class="grid md:grid-cols-2 gap-3">
-   <div class="card p-3"><div class="font-bold mb-2 text-sm">⚠️ تنبيهات عاجلة (${al.length})</div>${al.map(([d,i,t])=>`<div class="text-sm py-2 cursor-pointer" style="border-top:1px solid var(--bd)" onclick="show('${E(d.id)}')">${i} <b>${E(d.name)}</b> <span class="mono text-xs">${E(d.id)}</span><div class="text-xs" style="color:var(--mut)">${E(t)}</div></div>`).join('')||'<div class="text-sm" style="color:var(--mut)">لا توجد تنبيهات ✔</div>'}</div>
+   <div class="card p-3"><div class="font-bold mb-2 text-sm">🔴 أجهزة خارج الخدمة (${down.length})</div>${down.map(d=>row(d,'🔴',d.dept+(d.loc?' — '+d.loc:''))).join('')||'<div class="text-sm" style="color:var(--mut)">لا توجد أجهزة متوقفة ✔</div>'}</div>
    <div class="card p-3"><div class="font-bold mb-2 text-sm">🛠 آخر أعمال الصيانة</div>${logs.map(l=>`<div class="text-sm py-2 cursor-pointer" style="border-top:1px solid var(--bd)" onclick="show('${E(l.d.id)}')"><div class="flex justify-between"><b>${E(l.d.name)}</b><span class="mono text-xs">${E(l.date)}</span></div><div class="text-xs" style="color:var(--mut)">${LT[l.type]} — ${E(l.desc)}</div></div>`).join('')||'<div class="text-sm" style="color:var(--mut)">لا توجد سجلات</div>'}</div></div>`}
 /* ---------- Assets ---------- */
-function assets(){return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">سجل الأجهزة</div><div class="flex gap-2"><button class="btn2" onclick="labelsDlg()">🖨 ملصقات QR</button><button class="btn" onclick="auth(()=>devForm())">+ جهاز جديد</button></div></div>
+function assets(){return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">سجل الأجهزة</div><div class="flex gap-2"><button class="btn2" onclick="labelsDlg()">🖨 ملصقات QR</button></div></div>
 <div class="flex flex-wrap gap-2 mb-3"><input id="q" placeholder="ابحث: اسم، رقم أصل، سيريال، موديل..." oninput="draw()" class="flex-1" style="min-width:180px">
 <select id="fs" onchange="draw()" style="width:auto"><option value="">كل الحالات</option>${Object.keys(ST).map(k=>`<option value="${k}">${ST[k]}</option>`).join('')}</select>
 <select id="fd" onchange="draw()" style="width:auto"><option value="">كل الأقسام</option>${D.depts.map(x=>`<option>${E(x)}</option>`).join('')}</select></div>
-<div id="list" class="grid gap-3 md:grid-cols-2 lg:grid-cols-3"></div>`}
+<div id="list" class="grid gap-2 md:grid-cols-2 lg:grid-cols-3"></div>`}
 function draw(){
   const q=$('#q').value.toLowerCase(),fs=$('#fs').value,fd=$('#fd').value;
   const r=D.devs.filter(d=>(!fs||d.status===fs)&&(!fd||d.dept===fd)&&(!q||[d.id,d.name,d.sn,d.model,d.mfr,d.dept,d.loc].join(' ').toLowerCase().includes(q)));
@@ -159,8 +192,8 @@ function draw(){
 /* ---------- Departments ---------- */
 function depts(){
   if(curDept!==null){const x=D.depts[curDept],v=D.devs.filter(d=>d.dept===x);
-    return `<button class="btn2 mb-3" onclick="curDept=null;view()">→ كل الأقسام</button><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div class="text-lg font-bold">${E(x)} <span class="mono text-sm" style="color:var(--mut)">(${v.length})</span></div><div class="flex gap-2"><button class="btn2" onclick="auth(()=>editDept(${curDept}))">✏️ تعديل القسم</button><button class="btn2" style="color:#dc2626" onclick="auth(()=>delDept(${curDept}))">🗑 حذف القسم</button></div></div><div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">${v.map(card).join('')||'<div style="color:var(--mut)">لا توجد أجهزة في هذا القسم</div>'}</div>`}
-  return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">الأقسام</div><button class="btn" onclick="auth(()=>deptForm())">+ إضافة قسم جديد</button></div>
+    return `<button class="btn2 mb-3" onclick="curDept=null;view()">→ كل الأقسام</button><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><div class="text-lg font-bold">${E(x)} <span class="mono text-sm" style="color:var(--mut)">(${v.length})</span></div><div class="flex gap-2"><button class="btn2" onclick="auth(()=>editDept(${curDept}))">✏️ تعديل القسم</button><button class="btn2" style="color:#dc2626" onclick="auth(()=>delDept(${curDept}))">🗑 حذف القسم</button></div></div><div class="grid gap-2 md:grid-cols-2 lg:grid-cols-3">${v.map(card).join('')||'<div style="color:var(--mut)">لا توجد أجهزة في هذا القسم</div>'}</div>`}
+  return `<div class="flex justify-between items-center mb-3"><div class="text-lg font-bold">الأقسام</div></div>
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">${D.depts.map((x,i)=>{const v=D.devs.filter(d=>d.dept===x),dn=v.filter(d=>d.status==='down').length;return `<div class="card p-4 cursor-pointer" onclick="curDept=${i};view()"><div class="text-2xl">🗂️</div><div class="font-bold mt-1">${E(x)}</div><div class="text-xs mt-1" style="color:var(--mut)"><span class="mono">${v.length}</span> جهاز${dn?` • <span style="color:#dc2626">${dn} متوقف</span>`:''}</div></div>`}).join('')}</div>`}
 function deptForm(){openM(`<div class="font-bold mb-3">إضافة قسم جديد</div><form onsubmit="return false" class="grid gap-3"><div><label>اسم القسم</label><input id="dn" placeholder="مثال: الطوارئ"></div><div class="flex gap-2"><button class="btn" onclick="addDept()">حفظ</button><button class="btn2" onclick="closeM()">إلغاء</button></div></form>`)}
 function editDept(i){openM(`<div class="font-bold mb-3">تعديل اسم القسم</div><form onsubmit="return false" class="grid gap-3"><div><label>اسم القسم</label><input id="dn" value="${E(D.depts[i])}"></div><div class="flex gap-2"><button class="btn" onclick="saveDeptEdit(${i})">حفظ</button><button class="btn2" onclick="closeM()">إلغاء</button></div></form>`)}
@@ -171,23 +204,23 @@ function addDept(){const n=$('#dn').value.trim();if(!n)return alert('اكتب ا
 function show(id,t='info'){
   const d=D.devs.find(x=>x.id===id);stopScan();
   if(!d){openM('<p class="p-4 text-center">⚠️ الجهاز غير موجود</p>');return}
-  const row=(a,b)=>`<div><div class="text-xs" style="color:var(--mut)">${a}</div><div class="text-sm">${E(b)||'—'}</div></div>`;
+  const tp=tplFor(d),ps=pmState(d),row=(a,b)=>`<div><div class="text-xs" style="color:var(--mut)">${a}</div><div class="text-sm">${E(b)||'—'}</div></div>`;
   const mono=(a,b)=>`<div><div class="text-xs" style="color:var(--mut)">${a}</div><div class="mono text-sm">${E(b)||'—'}</div></div>`;
   const body={
    info:`<div class="grid grid-cols-2 gap-4">${mono('رقم الأصل',d.id)}${row('القسم',d.dept)}${row('الشركة المصنعة',d.mfr)}${mono('الموديل',d.model)}${mono('الرقم التسلسلي',d.sn)}${row('الموقع الفعلي',d.loc)}</div>`,
-   life:`<div class="grid grid-cols-2 gap-4">${mono('تاريخ التشغيل',d.comm)}${row('حالة الضمان',d.war==='in'?'تحت الضمان ✔':'خارج الضمان')}${row('الوكيل / جهة الصيانة',d.vendor)}${mono('الصيانة القادمة',nextPM(d))}</div>`,
-   hist:d.logs.length?`<div class="tl">${[...d.logs].sort((a,b)=>b.date.localeCompare(a.date)).map(l=>`<div><div class="flex justify-between text-sm"><b>${LT[l.type]}</b><span class="mono text-xs">${E(l.date)}</span></div><div class="text-sm mt-1">${E(l.desc)}</div><div class="text-xs mt-1" style="color:var(--mut)">👷 ${E(l.eng)}${l.parts?' • 🔩 '+E(l.parts):''}${+l.cost?' • 💰 '+E(l.cost)+' ج.م':''}${l.next?' • 📅 '+E(l.next):''}</div></div>`).join('')}</div>`:'<div class="text-sm" style="color:var(--mut)">لا توجد سجلات بعد</div>',
+   life:`<div class="grid grid-cols-2 gap-4">${mono('تاريخ التشغيل',d.comm)}${row('حالة الضمان',d.war==='in'?'تحت الضمان ✔':'خارج الضمان')}${row('الوكيل / جهة الصيانة',d.vendor)}${mono('الصيانة القادمة',nextPM(d)+(ps?(ps.x<0?'  (متأخرة '+(-ps.x)+' يوم)':'  (بعد '+ps.x+' يوم)'):''))}${row('دورية الصيانة الوقائية',d.pmFreq?freqTxt(d.pmFreq):'')}</div>${tp?`<div class="mt-4"><div class="text-xs mb-1" style="color:var(--mut)">قائمة فحص الصيانة الوقائية — ${E(tp.name)}</div><ul class="text-sm" style="list-style:disc;padding-right:1.2rem">${taskList(tp).map(x=>`<li>${E(x)}</li>`).join('')}</ul></div>`:''}`,
+   hist:d.logs.length?`<div class="tl">${[...d.logs].sort((a,b)=>b.date.localeCompare(a.date)).map(l=>`<div><div class="flex justify-between text-sm"><b>${LT[l.type]}</b><span class="mono text-xs">${E(l.date)}</span></div><div class="text-sm mt-1">${E(l.desc)}</div><div class="text-xs mt-1" style="color:var(--mut)">👷 ${E(l.eng)}${l.parts?' • 🔩 '+E(l.parts):''}${+l.cost?' • 💰 '+E(l.cost)+' ج.م':''}${l.next?' • 📅 '+E(l.next):''}</div>${chkDiv(l)}</div>`).join('')}</div>`:'<div class="text-sm" style="color:var(--mut)">لا توجد سجلات بعد</div>',
    man:d.manual?`<a class="btn inline-block" href="${E(d.manual)}" target="_blank" rel="noopener">📄 عرض / تحميل دليل الخدمة</a><div class="mono text-xs mt-2" style="color:var(--mut)">${E(d.manual)}</div>`:'<div class="text-sm" style="color:var(--mut)">لا يوجد دليل مرفق — أضف الرابط من زر تعديل</div>'}[t];
   openM(`<div class="card p-4" style="border-top:3px solid ${SC[d.status]}"><div class="flex justify-between items-start gap-2"><div><div class="font-bold text-lg">${E(d.name)}</div><div class="mono text-xs" style="color:var(--gold)">${E(d.id)}</div></div>${bdg(d.status)}</div>
-  <div class="flex flex-wrap gap-2 mt-3"><button class="btn2" onclick="auth(()=>devForm('${E(id)}'))">✏️ تعديل</button><button class="btn2" onclick="qr('${E(id)}')">🔳 طباعة QR</button><button class="btn" onclick="auth(()=>logForm('${E(id)}'))">+ سجل صيانة</button><button class="btn2" style="color:#dc2626" onclick="auth(()=>del('${E(id)}'))">🗑 حذف</button></div></div>
+  <div class="flex flex-wrap gap-2 mt-3"><button class="btn2" style="color:#dc2626" onclick="ticketForm('${E(id)}')">🚨 إبلاغ عن عطل</button><button class="btn2" onclick="auth(()=>devForm('${E(id)}'))">✏️ تعديل</button><button class="btn2" onclick="qr('${E(id)}')">🔳 طباعة QR</button><button class="btn" onclick="auth(()=>logForm('${E(id)}'))">+ سجل صيانة</button><button class="btn2" style="color:#dc2626" onclick="auth(()=>del('${E(id)}'))">🗑 حذف</button></div></div>
   <div class="tabs">${[['info','البيانات الأساسية'],['life','دورة الحياة والضمان'],['hist','سجل الصيانة'],['man','الكتالوجات']].map(([k,l])=>`<button class="${k===t?'on':''}" onclick="show('${E(id)}','${k}')">${l}</button>`).join('')}</div>${body}
   <button class="btn2 mt-4 w-full" onclick="closeM()">إغلاق</button>`);
   try{history.replaceState(null,'','#d-'+id)}catch(e){}
 }
 function del(id){if(!confirm('حذف الجهاز نهائيًا؟'))return;D.devs=D.devs.filter(x=>x.id!==id);save();closeM();view()}
 const F=(k,l,v,t='text',x='')=>`<div><label>${l}</label><input name="${k}" type="${t}" value="${E(v)}" ${x}></div>`;
-function devForm(id){
-  const d=id?D.devs.find(x=>x.id===id):{id:'',name:'',dept:D.depts[0],mfr:'',model:'',sn:'',loc:'',comm:'',war:'in',vendor:'',status:'ok',manual:''};
+function devForm(id,dpt){
+  const d=id?D.devs.find(x=>x.id===id):{id:'',name:'',dept:dpt||D.depts[0],mfr:'',model:'',sn:'',loc:'',comm:'',war:'in',vendor:'',status:'ok',manual:'',pmFreq:'',nextPmDate:''},tp=id?tplFor(d):null;
   openM(`<div class="font-bold mb-3">${id?'تعديل جهاز':'إضافة جهاز جديد'}</div><form id="f" class="grid grid-cols-2 gap-3" onsubmit="return false">
   ${F('id','رقم الأصل *',d.id,'text',id?'readonly':'')}${F('name','اسم الجهاز *',d.name)}
   <div><label>القسم</label><select name="dept">${D.depts.map(x=>`<option ${x===d.dept?'selected':''}>${E(x)}</option>`).join('')}</select></div>
@@ -196,24 +229,69 @@ function devForm(id){
   ${F('vendor','الوكيل / المورد (اتصال)',d.vendor)}
   <div><label>الحالة</label><select name="status">${Object.keys(ST).map(k=>`<option value="${k}" ${k===d.status?'selected':''}>${ST[k]}</option>`).join('')}</select></div>
   <div>${F('manual','رابط دليل PDF',d.manual,'url','dir="ltr"')}</div>
+  ${F('pmFreq','دورية الصيانة الوقائية (شهور)',d.pmFreq||'','number','min="0" max="60" placeholder="1 شهري · 3 ربع · 6 نصف · 12 سنوي"')}${F('nextPmDate','موعد الصيانة الوقائية القادمة',d.nextPmDate||'','date')}
+  ${tp&&!d.pmFreq?`<div class="col-span-2 text-xs" style="color:var(--mut)">💡 قالب «${E(tp.name)}»: دورية مقترحة ${E(tp.freq)} شهر</div>`:''}
   <div class="col-span-2 flex gap-2"><button class="btn" onclick="saveDev('${E(id||'')}')">حفظ</button><button class="btn2" onclick="${id?`show('${E(id)}')`:'closeM()'}">إلغاء</button></div></form>`)}
 function saveDev(old){
   const o=Object.fromEntries(new FormData($('#f')));o.id=o.id.trim().replace(/[^\w\-]/g,'-');
   if(!o.id||!o.name.trim())return alert('رقم الأصل واسم الجهاز مطلوبين');
-  if(old)Object.assign(D.devs.find(x=>x.id===old),o);else{if(D.devs.some(x=>x.id===o.id))return alert('رقم الأصل مستخدم بالفعل');D.devs.unshift({...o,logs:[]})}
+  const pf=Math.round(+o.pmFreq)||0;o.pmFreq=pf>0?String(pf):'';let dv;
+  if(old){dv=D.devs.find(x=>x.id===old);Object.assign(dv,o)}else{if(D.devs.some(x=>x.id===o.id))return alert('رقم الأصل مستخدم بالفعل');dv={...o,logs:[]};D.devs.unshift(dv)}
+  if(dv.pmFreq&&!dv.nextPmDate){const b=lastPm(dv);if(b)dv.nextPmDate=addM(b,+dv.pmFreq)}
   save();view();show(o.id)}
 function logForm(id){
   openM(`<div class="font-bold mb-3">إضافة سجل — <span class="mono">${E(id)}</span></div><form id="f" class="grid grid-cols-2 gap-3" onsubmit="return false">
-  <div><label>النوع</label><select name="type">${Object.keys(LT).map(k=>`<option value="${k}">${LT[k]}</option>`).join('')}</select></div>
+  <div><label>النوع</label><select name="type" onchange="chkFill('${E(id)}')">${Object.keys(LT).map(k=>`<option value="${k}">${LT[k]}</option>`).join('')}</select></div>
   ${F('date','التاريخ',today(),'date')}${F('eng','اسم المهندس','')}${F('cost','التكلفة (ج.م)','0','number')}
   <div class="col-span-2"><label>وصف العطل / الإجراء</label><textarea name="desc" rows="3"></textarea></div>
-  ${F('parts','قطع الغيار المستبدلة','')}${F('next','موعد الصيانة القادمة','','date')}
+  <div class="col-span-2" id="chk"></div>
+  ${F('parts','قطع الغيار المستبدلة','')}${F('next','موعد الصيانة القادمة (اتركه فاضي ليُحسب من الدورية)','','date')}
   <div class="col-span-2"><label>تحديث حالة الجهاز تلقائيًا</label><select name="st"><option value="">بدون تغيير</option>${Object.keys(ST).map(k=>`<option value="${k}">${ST[k]}</option>`).join('')}</select></div>
-  <div class="col-span-2 flex gap-2"><button class="btn" onclick="saveLog('${E(id)}')">حفظ السجل</button><button class="btn2" onclick="show('${E(id)}','hist')">رجوع</button></div></form>`)}
+  <div class="col-span-2 flex gap-2"><button class="btn" onclick="saveLog('${E(id)}')">حفظ السجل</button><button class="btn2" onclick="show('${E(id)}','hist')">رجوع</button></div></form>`);chkFill(id)}
 function saveLog(id){
   const o=Object.fromEntries(new FormData($('#f'))),d=D.devs.find(x=>x.id===id);
   if(!o.desc.trim()||!o.eng.trim())return alert('اسم المهندس والوصف مطلوبين');
+  const ck=[...document.querySelectorAll('.ck')].map(c=>({t:c.dataset.t,ok:c.checked}));if(ck.length&&o.type==='PM')o.chk=ck;
+  if(o.type==='PM'){if(!o.next&&+d.pmFreq)o.next=addM(o.date,+d.pmFreq);d.nextPmDate=o.next||''}else if(o.next)d.nextPmDate=o.next;
   const st=o.st;delete o.st;d.logs.push(o);if(st)d.status=st;save();view();show(id,'hist')}
+function chkFill(id){const el=$('#chk'),f=$('#f');if(!el||!f)return;const d=D.devs.find(x=>x.id===id),tp=d&&tplFor(d),L=tp?taskList(tp):[];
+ el.innerHTML=f.elements['type'].value==='PM'&&L.length?`<label>قائمة فحص الصيانة الوقائية — ${E(tp.name)}</label>${L.map(x=>`<label style="display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--tx)"><input type="checkbox" class="ck" data-t="${E(x)}" style="width:auto"> ${E(x)}</label>`).join('')}`:''}
+/* ---------- Tickets ---------- */
+function ticketForm(id){const d=D.devs.find(x=>x.id===id);if(!d)return;stopScan();
+ openM(`<div class="font-bold mb-1">🚨 إبلاغ عن عطل</div><div class="text-sm mb-3" style="color:var(--mut)">${E(d.name)} — <span class="mono">${E(d.id)}</span> • ${E(d.dept)}</div><form id="f" class="grid gap-3" onsubmit="return false"><div><label>وصف العطل *</label><textarea name="desc" rows="3" maxlength="300" placeholder="مثال: الجهاز لا يعمل / إنذار مستمر"></textarea></div><div><label>اسم المبلّغ / القسم (اختياري)</label><input name="by" maxlength="60"></div><div class="text-xs" style="color:#eab308">⚠️ لا تكتب بيانات مرضى (أسماء أو أرقام).</div><div class="flex gap-2"><button class="btn" id="tb" onclick="sendTicket('${E(id)}')">إرسال البلاغ</button><button class="btn2" onclick="show('${E(id)}')">إلغاء</button></div></form>`)}
+async function sendTicket(id){const d=D.devs.find(x=>x.id===id),f=new FormData($('#f')),desc=String(f.get('desc')||'').trim().slice(0,300),by=String(f.get('by')||'').trim().slice(0,60);
+ if(!d)return;if(!desc)return alert('اكتب وصف العطل');
+ let last=0;try{last=+localStorage.getItem('bme_tk_t')||0}catch(e){}
+ if(Date.now()-last<60000)return alert('تم إرسال بلاغ منذ لحظات، انتظر دقيقة ثم حاول مرة أخرى');
+ const t={devId:d.id,devName:String(d.name).slice(0,120),dept:String(d.dept).slice(0,120),desc,by,createdAt:new Date().toISOString(),status:'open'},b=$('#tb');b.disabled=true;
+ try{
+  if(CLOUD)await Promise.race([firebase.firestore().collection('bme_tickets').add(t),new Promise((_,r)=>setTimeout(()=>r({code:'timeout'}),8000))]);
+  else{(D.tickets=D.tickets||[]).push({...t,_id:String(Date.now())});save();ui()}
+  try{localStorage.setItem('bme_tk_t',String(Date.now()))}catch(e){}
+  alert('✔ تم إرسال البلاغ. سيظهر للمسؤول عند فتحه للتطبيق.');show(id)}
+ catch(e){b.disabled=false;
+  if(e&&e.code==='timeout'){try{localStorage.setItem('bme_tk_t',String(Date.now()))}catch(x){}alert('لم يتأكد وصول البلاغ بعد (الاتصال ضعيف). سيُرسل تلقائيًا عند توفر الاتصال طالما الصفحة مفتوحة.');show(id)}
+  else alert(e&&e.code==='permission-denied'?'تعذّر إرسال البلاغ: صلاحيات قاعدة البيانات لم تُحدَّث بعد. أبلغ المسؤول.':'تعذّر إرسال البلاغ، تحقق من الاتصال وحاول مرة أخرى')}}
+function ticketsDlg(){stopScan();const L=tix().slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+ openM(`<div class="font-bold mb-3">🎫 بلاغات الأعطال المفتوحة (${L.length})</div>${L.map(t=>`<div class="card p-3 mb-2"><div class="flex justify-between gap-2"><b>${E(t.devName)}</b><span class="mono text-xs">${E(t.devId)}</span></div><div class="text-xs" style="color:var(--mut)">${E(t.dept)}${t.by?' • '+E(t.by):''} • ${E(String(t.createdAt).slice(0,16).replace('T',' '))}</div><div class="text-sm mt-1">${E(t.desc)}</div><div class="flex gap-2 mt-2"><button class="btn2" onclick="show('${E(t.devId)}')">فتح الجهاز</button><button class="btn" onclick="closeTk('${E(t._id)}')">✔ إغلاق البلاغ</button></div></div>`).join('')||'<div class="text-sm" style="color:var(--mut)">لا توجد بلاغات مفتوحة ✔</div>'}<button class="btn2 w-full mt-2" onclick="closeM()">إغلاق</button>`)}
+async function closeTk(id){const n=prompt('ملاحظة الإغلاق (اختياري) — اضغط إلغاء لعدم الإغلاق');if(n===null)return;const u={status:'closed',closedAt:new Date().toISOString(),note:String(n).slice(0,200)};
+ try{if(CLOUD)await firebase.firestore().collection('bme_tickets').doc(id).update(u);else{const t=(D.tickets||[]).find(x=>x._id===id);if(t){Object.assign(t,u);save()}ui()}ticketsDlg()}catch(e){fail(e)}}
+let unT=null;
+function tkListen(on){if(unT){unT();unT=null}if(!on){T=[];ui();return}
+ unT=firebase.firestore().collection('bme_tickets').where('status','==','open').onSnapshot(q=>{T=q.docs.map(x=>({_id:x.id,...x.data()}));ui();if(tab==='home'&&!$('#ov').classList.contains('on'))keep(view)},e=>{T=[];ui()})}
+/* ---------- PM templates ---------- */
+const tplCard=(t,i)=>`<div class="card p-3 mb-2 tc"><div class="grid grid-cols-2 gap-2"><div><label>اسم القالب</label><input class="tn" value="${E(t.name)}"></div><div><label>الدورية (شهور)</label><input class="tf" type="number" min="1" max="60" value="${E(t.freq)}"></div><div class="col-span-2"><label>كلمات المطابقة (افصل بفاصلة، و - للاستثناء)</label><input class="tkw" dir="ltr" value="${E(t.kw)}"></div><div class="col-span-2"><label>بنود الفحص (بند في كل سطر)</label><textarea class="tt" rows="4">${E(t.tasks)}</textarea></div></div><button class="btn2 mt-2" style="color:#dc2626" onclick="tplDel(${i})">🗑 حذف القالب</button></div>`;
+function tplDlg(){stopScan();openM(`<div class="font-bold mb-1">🗓 قوالب الصيانة الوقائية</div><div class="text-xs mb-3" style="color:var(--mut)">القالب يُطبَّق على الجهاز لو اسمه أو موديله يحتوي إحدى كلمات المطابقة. المحتوى مسودة — راجعه على دليل الخدمة (service manual) قبل الاعتماد.</div><div>${(D.tpls||[]).map(tplCard).join('')}</div><div class="flex flex-wrap gap-2 mt-2"><button class="btn2" onclick="tplAdd()">+ قالب جديد</button><button class="btn" onclick="tplSave()">حفظ</button><button class="btn2" onclick="tplSave(1)">حفظ وتطبيق على الأجهزة</button><button class="btn2" onclick="closeM()">إغلاق</button></div>`)}
+function tplRead(){D.tpls=[...document.querySelectorAll('.tc')].map(c=>({name:c.querySelector('.tn').value.trim(),freq:String(Math.max(1,Math.round(+c.querySelector('.tf').value)||1)),kw:c.querySelector('.tkw').value.trim(),tasks:c.querySelector('.tt').value}))}
+function tplAdd(){tplRead();D.tpls.push({name:'قالب جديد',freq:'6',kw:'',tasks:''});tplDlg()}
+function tplDel(i){tplRead();D.tpls.splice(i,1);tplDlg()}
+function tplSave(a){tplRead();D.tpls=D.tpls.filter(t=>t.name);save();a?applyDlg():closeM()}
+function applyDlg(){const act=D.devs.filter(d=>d.status!=='scrap'),rows=(D.tpls||[]).map(t=>({t,m:act.filter(d=>tplFor(d)===t)})),tot=rows.reduce((a,r)=>a+r.m.length,0);
+ openM(`<div class="font-bold mb-3">تطبيق القوالب على الأجهزة</div>${rows.map(r=>`<div class="text-sm py-1" style="border-top:1px solid var(--bd)"><b>${E(r.t.name)}</b>: <span class="mono">${r.m.length}</span> جهاز (${E(r.t.freq)} شهر)</div>`).join('')}<div class="text-sm mt-2">الإجمالي: <b class="mono">${tot}</b> جهاز</div><div class="mt-3"><label>تاريخ آخر صيانة وقائية تقريبي (للأجهزة اللي ملهاش سجل PM) — الموعد القادم = هذا التاريخ + الدورية</label><input id="as" type="date" value="${today()}"></div><label style="display:flex;gap:8px;align-items:center;margin-top:8px;color:var(--tx)"><input type="checkbox" id="ao" style="width:auto"> استبدال الدورية للأجهزة اللي عندها دورية محددة بالفعل</label><div class="text-xs mt-2" style="color:var(--mut)">الأجهزة اللي عندها موعد قادم محفوظ لا يتغيّر موعدها.</div><div class="flex gap-2 mt-3"><button class="btn" onclick="applyTpl()">تطبيق</button><button class="btn2" onclick="closeM()">إلغاء</button></div>`)}
+function applyTpl(){const st=$('#as').value||today(),ov=$('#ao').checked,T2=D.devs.filter(d=>d.status!=='scrap').map(d=>({d,t:tplFor(d)})).filter(o=>o.t&&+o.t.freq>0);
+ if(!T2.length)return alert('لا توجد أجهزة مطابقة');if(!confirm('سيتم تحديث '+T2.length+' جهاز. متابعة؟'))return;
+ T2.forEach(({d,t})=>{if(!d.pmFreq||ov)d.pmFreq=String(+t.freq);if(!nextPM(d))d.nextPmDate=addM(lastPm(d)||st,+d.pmFreq)});
+ save();closeM();view();alert('✔ تم تطبيق القوالب على '+T2.length+' جهاز')}
 /* ---------- QR ---------- */
 function url(id){return location.href.split('#')[0]+'#d-'+id}
 function qr(id){
@@ -229,14 +307,15 @@ function cloudAuth(cb){stopScan();openM(`<div class='text-center p-2'><div class
  const go=async()=>{try{await firebase.auth().signInWithEmailAndPassword($('#em').value.trim(),$('#pw').value);unlocked=true;ui();cb()}catch(e){$('#pm').innerHTML="<span style='color:#dc2626'>✖ بيانات الدخول غير صحيحة أو لا يوجد اتصال</span>"}};
  $('#lb').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()}}
 function cloudInit(){firebase.initializeApp(window.FIREBASE_CONFIG);const db=firebase.firestore();db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
- firebase.auth().onAuthStateChanged(u=>{unlocked=!!u;ui()});
- let dv=null,dd=null,ready=false;
- const refresh=()=>{if(dv===null||dd===null)return;D.devs=dv;D.depts=[...dd,...[...new Set(dv.map(x=>x.dept))].filter(x=>x&&!dd.includes(x))];
+ firebase.auth().onAuthStateChanged(u=>{unlocked=!!u;ui();tkListen(!!u)});
+ let dv=null,dd=null,dt=null,ready=false;
+ const refresh=()=>{if(dv===null||dd===null||dt===null)return;D.devs=dv;D.tpls=dt;D.depts=[...dd,...[...new Set(dv.map(x=>x.dept))].filter(x=>x&&!dd.includes(x))];
   if(!ready){ready=true;view();route();return}
   if(!$('#ov').classList.contains('on')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))view()};
  const err=e=>{$('#main').innerHTML="<div class='card p-4 text-center'>تعذّر الاتصال بقاعدة البيانات: "+E(e.message)+"</div>"};
  db.collection('bme_devices').onSnapshot(q=>{dv=q.docs.map(x=>x.data());prev={};dv.forEach(d=>prev[d.id]=JSON.stringify(d));refresh()},err);
- db.collection('bme_meta').doc('depts').onSnapshot(q=>{dd=q.exists?q.data().list:[];prevD=JSON.stringify(dd);refresh()},err)}
+ db.collection('bme_meta').doc('depts').onSnapshot(q=>{dd=q.exists?q.data().list:[];prevD=JSON.stringify(dd);refresh()},err);
+ db.collection('bme_meta').doc('tpls').onSnapshot(q=>{dt=q.exists&&Array.isArray(q.data().list)?q.data().list:JSON.parse(JSON.stringify(DEF));prevT=JSON.stringify(dt);refresh()},err)}
 /* ---------- Backup / PIN / Labels / Report ---------- */
 async function saveFile(name,data){try{const b=data instanceof Blob?data:new Blob([data]),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){alert('تعذّر الحفظ')}}
 const fn=(n,e)=>n+'-'+today()+'.'+e;
@@ -244,6 +323,7 @@ function settings(){stopScan();openM(`<div class='font-bold mb-3'>⚙️ الإ�
 <div class='card p-3 mb-3'><div class='text-sm font-bold mb-2'>النسخ الاحتياطي</div><div class='flex flex-wrap gap-2'><button class='btn' onclick='expJSON()'>⬇️ تصدير JSON</button><button class='btn' onclick='expXLSX()'>⬇️ تصدير Excel</button></div>
 <div class='mt-3'><label>استيراد (JSON أو Excel) — يستبدل كل البيانات الحالية</label><input type='file' accept='.json,.xlsx' onchange='imp(this.files[0])'></div><div class='text-xs mt-2' style='color:var(--mut)'>النسخة الاحتياطية لا تتضمن رمز PIN.</div></div>
 <div class='card p-3' style='${CLOUD?"display:none":""}'><div class='text-sm font-bold mb-2'>تغيير رمز PIN</div><div class='grid grid-cols-2 gap-2'><div><label>الرمز الجديد</label><input id='p1' type='password' inputmode='numeric' maxlength='4' class='mono'></div><div><label>تأكيد الرمز</label><input id='p2' type='password' inputmode='numeric' maxlength='4' class='mono'></div></div><button class='btn mt-2' onclick='setPin()'>حفظ الرمز</button></div>
+<button class='btn2 mt-3 w-full' onclick='tplDlg()'>🗓 قوالب الصيانة الوقائية</button>
 <button class='btn2 mt-3 w-full' onclick='closeM()'>إغلاق</button>`)}
 function setPin(){const a=$('#p1').value,b=$('#p2').value;if(!/^\d{4}$/.test(a))return alert('الرمز لازم يكون 4 أرقام');if(a!==b)return alert('الرمزان غير متطابقين');D.pin=a;save();alert('تم تغيير الرمز');closeM()}
 function expJSON(){const {pin,...x}=D;saveFile(fn('bme-backup','json'),JSON.stringify(x,null,1))}
@@ -258,7 +338,7 @@ else n=JSON.parse(await f.text());
 if(!Array.isArray(n.depts)||!Array.isArray(n.devs))throw 0;
 n.devs.forEach(d=>{d.logs=d.logs||[];if(!n.depts.includes(d.dept))n.depts.push(d.dept)});
 if(!confirm('سيتم استبدال كل البيانات الحالية بـ '+n.devs.length+' جهاز. متابعة؟'))return;
-D={depts:n.depts,devs:n.devs,pin:D.pin};save();closeM();view()}catch(e){alert('الملف غير صالح')}}
+D={depts:n.depts,devs:n.devs,tpls:n.tpls||D.tpls,pin:D.pin,tickets:D.tickets};save();closeM();view()}catch(e){alert('الملف غير صالح')}}
 function labelsDlg(){stopScan();openM(`<div class='font-bold mb-3'>🖨 ملصقات QR</div><div class='flex gap-2 mb-2'><select id='ld' onchange='lfill()'><option value=''>كل الأقسام</option>${D.depts.map(x=>`<option>${E(x)}</option>`).join('')}</select><button class='btn2' onclick='lall(1)'>الكل</button><button class='btn2' onclick='lall(0)'>إلغاء</button></div><div id='ll' style='max-height:45vh;overflow:auto'></div><div class='flex flex-wrap gap-2 mt-3'><button class='btn' onclick='lprint()'>🖨 طباعة</button><button class='btn2' onclick='lhtml()'>⬇️ تحميل HTML</button><button class='btn2' onclick='closeM()'>إغلاق</button></div>`);lfill()}
 function lfill(){const x=$('#ld').value;$('#ll').innerHTML=D.devs.filter(d=>!x||d.dept===x).map(d=>`<label style='display:flex;gap:8px;align-items:center;font-size:.85rem;color:var(--tx);padding:4px 0'><input type='checkbox' class='lc' value='${E(d.id)}' checked style='width:auto'> ${E(d.name)} <span class='mono' style='color:var(--gold)'>${E(d.id)}</span></label>`).join('')}
 function lall(v){document.querySelectorAll('.lc').forEach(c=>c.checked=!!v)}

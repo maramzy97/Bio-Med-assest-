@@ -1,10 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // الأجهزة والأقسام والقوالب: قراءة للجميع، كتابة للفريق المسجّل فقط
     match /{coll}/{id} {
       allow read: if coll in ['bme_devices','bme_meta'];
       allow write: if coll in ['bme_devices','bme_meta']
         && request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    // بلاغات الأعطال: أي زائر يقدر "ينشئ" بلاغ فقط (بحقول محددة وأحجام محدودة)،
+    // والقراءة والتعديل والحذف للفريق المسجّل فقط
+    match /bme_tickets/{tid} {
+      allow create: if request.resource.data.keys().hasOnly(['devId','devName','dept','desc','by','createdAt','status'])
+        && request.resource.data.keys().hasAll(['devId','devName','dept','desc','createdAt','status'])
+        && request.resource.data.status == 'open'
+        && request.resource.data.devId is string && request.resource.data.devId.size() > 0 && request.resource.data.devId.size() <= 80
+        && request.resource.data.devName is string && request.resource.data.devName.size() <= 120
+        && request.resource.data.dept is string && request.resource.data.dept.size() <= 120
+        && request.resource.data.desc is string && request.resource.data.desc.size() > 0 && request.resource.data.desc.size() <= 300
+        && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40
+        && (!('by' in request.resource.data) || (request.resource.data.by is string && request.resource.data.by.size() <= 60))
+        && exists(/databases/$(database)/documents/bme_devices/$(request.resource.data.devId));
+      allow read, update, delete: if request.auth != null
         && request.auth.token.firebase.sign_in_provider == 'password';
     }
   }
